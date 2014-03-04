@@ -1,8 +1,12 @@
-all: rebuilding_ruby.pdf
-	open rebuilding_ruby.pdf
+TEX_FILES := $(wildcard book/*.tex)
+all: reconstructing_ruby.pdf
+	open reconstructing_ruby.pdf
 
-rebuilding_ruby.pdf: rebuilding_ruby.tex chapter_1.tex chapter_2.tex preface.tex
-	pdflatex rebuilding_ruby.tex
+reconstructing_ruby.pdf: $(TEX_FILES)
+	pdflatex book/reconstructing_ruby.tex
 
-markdown: rebuilding_ruby.tex
-	pandoc -s rebuilding_ruby.tex -o rebuilding_ruby.md
+markdown: $(TEXT_FILES)
+	pandoc -s book/reconstructing_ruby.tex -o reconstructing_ruby.md
+
+clean:
+	rm reconstructing_ruby.*
