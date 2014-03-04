@@ -1,0 +1,10 @@
+*.aux
+*.log
+*.pdf
+main
+y.tab.debug.output
+y.tab.debug.c
+y.tab.c
+y.tab.h
+part1-tokenizing/main.c
+part2-parsing/main.c
