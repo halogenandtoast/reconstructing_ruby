@@ -1,0 +1,53 @@
+\chapter{Tokenizing}
+What is a lexer? The job of a lexer is to read you code and identify what we call tokens. Tokens are simply named pieces of text. We'll be using a program called Flex to tokenize our code. Flex is a lexical analyzer designed to create a tokenizer.
+
+A Flex file will typically have this structure:
+
+\begin{lstlisting}
+definitions and directives
+%%
+rules
+%%
+user code
+\end{lstlisting}
+
+As a first step we'll want to create a file called {\bf ruby.l}. Add the following content:
+
+\begin{lstlisting}[language=C]
+%{
+  #include <stdlib.h>
+  #include <stdio.h>
+%}
+
+%option noyywrap
+
+%%
+[0-9]+ { printf("NUMBER: %s\n", yytext); }
+[ \t\n] {}
+. {}
+%%
+
+int main(int argc, char *argv[]) {
+  yylex();
+  return EXIT_SUCCESS;
+}
+\end{lstlisting}
+
+Now to compile and run this do the following
+
+\begin{lstlisting}
+flex ruby.l
+gcc -o ruby lex.yy.c
+./ruby
+\end{lstlisting}
+
+Then try the following:
+
+\begin{lstlisting}
+1
+NUMBER: 1
+42
+NUMBER: 42
+\end{lstlisting}
+
+Then press ctrl-c to exit
