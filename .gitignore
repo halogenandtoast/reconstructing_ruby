@@ -1,6 +1,7 @@
 *.aux
 *.log
 *.pdf
+*.toc
 main
 y.tab.debug.output
 y.tab.debug.c
