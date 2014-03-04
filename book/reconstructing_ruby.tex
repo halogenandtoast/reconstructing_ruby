@@ -1,8 +1,9 @@
 \documentclass[oneside]{book}
 
+\usepackage{graphicx}
 \usepackage{inconsolata}
-
 \usepackage[dvipsnames]{xcolor}
+\usepackage{pdfpages}
 
 \usepackage{parskip}
 \setlength{\parindent}{0pt}
@@ -20,6 +21,7 @@ stringstyle=\ttfamily\color{orange}}
 \date{}
 
 \begin{document}
+\includepdf{book/title.pdf}
 \title{Reconstructing Ruby}
 \author{Matthew Mongeau}
 \maketitle

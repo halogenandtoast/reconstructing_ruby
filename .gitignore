@@ -1,6 +1,6 @@
 *.aux
 *.log
-*.pdf
+reconstructing_ruby.pdf
 *.toc
 main
 y.tab.debug.output
