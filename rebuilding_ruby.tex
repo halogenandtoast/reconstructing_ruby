@@ -1,4 +1,17 @@
 \documentclass[oneside]{book}
+
+\usepackage[dvipsnames]{xcolor}
+\usepackage{listings}
+\lstloadlanguages{C}
+\lstset{%
+showspaces=false,
+showstringspaces=false,
+basicstyle=\ttfamily\color{black},
+commentstyle=\ttfamily\color{red},
+keywordstyle=\ttfamily\color{blue},
+stringstyle=\ttfamily\color{orange}}
+
+
 \date{}
 \begin{document}
 \title{Rebuilding Ruby}
@@ -10,12 +23,25 @@
 \chapter*{Preface}
 \addcontentsline{toc}{chapter}{Preface}
 
+This book is not a primer on C. It assumes that you have a passing knowledge of C programming. If you've never programmed in C before it's highly suggested that you read the book "C Programming Language, 2nd Edition" by Brian W. Kernighan and Dennis M. Ritchie -  which is often referred to as "K\&R".
+
+This book has been written for two purposes. The first is to provide a better understanding of Ruby's internals, potentially allowing readers to contribute to Ruby. A second goal is to provide a better understanding of interpreters in general. The second goal opens up the possibilities for readers to create their own interpreted languages.
+
 \mainmatter
 \chapter{Tokenizing}
 What is a lexer? The job of a lexer is to read you code and identify what we call tokens. Tokens are simply named pieces of text.
 
 \newpage
 This is on another page.
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+
+int main(int argc, char *argv[]) {
+  printf("Hello World\n");
+  return 0;
+}
+\end{lstlisting}
 
 \chapter{Parsing}
 What is parsing? Parsing is verifying the structure of our code.
