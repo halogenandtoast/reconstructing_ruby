@@ -10,3 +10,7 @@ y.tab.h
 part1-tokenizing/main.c
 part2-parsing/main.c
 reconstructing_ruby.md
+reconstructing_ruby.out
+reconstructing_ruby.pyg
+yy.lex.c
+ruby

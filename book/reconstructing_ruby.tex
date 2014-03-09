@@ -1,4 +1,10 @@
 \documentclass[oneside]{book}
+\usepackage{hyperref}
+\hypersetup{
+  linktocpage,
+  colorlinks
+}
+\usepackage{soul}
 \usepackage{inconsolata}
 \renewcommand{\familydefault}{\sfdefault}
 
@@ -6,18 +12,42 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage{pdfpages}
 
+\definecolor{base02}{HTML}{073642}
+\definecolor{base00}{HTML}{839496}
+\definecolor{orange}{HTML}{b58900}
+\definecolor{cyan}{HTML}{2aa198}
+
 \usepackage{parskip}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{4mm}
 
 \usepackage{listings}
-\lstloadlanguages{C}
+\usepackage[framemethod=tikz]{mdframed}
+
+\lstdefinelanguage{Flex}{
+  otherkeywords= {\%\%, \%\{, \%\}, \%option}
+}
+
+
+\lstloadlanguages{C,make}
 \lstset{%
 showstringspaces=false,
-basicstyle=\ttfamily\color{black},
+basicstyle=\ttfamily\color{base00},
 commentstyle=\ttfamily\color{red},
-keywordstyle=\ttfamily\color{blue},
-stringstyle=\ttfamily\color{orange}}
+keywordstyle=\ttfamily\color{orange},
+identifierstyle=\ttfamily\color{base00},
+stringstyle=\ttfamily\color{cyan}}
+
+\surroundwithmdframed[
+  hidealllines=true,
+  fontcolor=base00,
+  backgroundcolor=base02,
+  innerleftmargin=15pt,
+  innertopmargin=15pt,
+  innerrightmargin=15pt,
+  roundcorner=5pt,
+  innerbottommargin=5pt]{lstlisting}
+
 
 \date{}
 
