@@ -211,19 +211,30 @@ Now we'll add three rules. We'll add a matcher for identifiers which will later 
 
 \begin{lstlisting}
 [a-z][a-zA-Z0-9_]* { VTYPE("ID", yytext); }
-= { TYPE("ASSIGN"); }
+"=" { TYPE("EQUAL"); }
 [\t\n ]
 \end{lstlisting}
 
 Let's add rules for {\bf +}, {\bf -}, {\bf *}, {\bf /}, {\bf (}, {\bf )}, {\bf \{}, {\bf \}}, {\bf \#}, {\bf @}, {\bf .}, {\bf ,}, and {\bf :}.
 
 \begin{lstlisting}
+">" { TYPE("GT"); }
+"<" { TYPE("LT"); }
+">=" { TYPE("GTE"); }
+"<=" { TYPE("LTE"); }
+"!=" { TYPE("NEQUAL"); }
 "=" { TYPE("EQUAL"); }
 "+" { TYPE("PLUS"); }
 "-" { TYPE("MINUS"); }
 "*" { TYPE("MULT"); }
 "/" { TYPE("DIV"); }
 "%" { TYPE("MOD"); }
+"!" { TYPE("EMARK"); }
+"?" { TYPE("QMARK"); }
+"&" { TYPE("AND"); }
+"|" { TYPE("OR"); }
+"[" { TYPE("LSBRACE"); }
+"]" { TYPE("RSBRACE"); }
 "(" { TYPE("LPAREN"); }
 ")" { TYPE("RPAREN"); }
 "{" { TYPE("LBRACE"); }
@@ -297,10 +308,10 @@ FLOAT(1.0e-6)
 NUMBER(1)
 NUMBER(1235)
 ID(x)
-ASSIGN
+EQUAL
 FLOAT(1.5)
 ID(x)
-ASSIGN
+EQUAL
 NUMBER(1)
 \end{lstlisting}
 
@@ -322,7 +333,7 @@ The output should be:
 
 \begin{lstlisting}
 ID(x)
-ASSIGN
+EQUAL
 STRING("Hello World")
 \end{lstlisting}
 
@@ -336,7 +347,7 @@ then we'll get the output:
 
 \begin{lstlisting}
 ID(x)
-ASSIGN
+EQUAL
 STRING("Hello \")
 
 Unknown token: 'W'
@@ -359,7 +370,7 @@ With this, we're matching any character that is not a double quote or any charac
 
 \begin{lstlisting}
 ID(x)
-ASSIGN
+EQUAL
 STRING("Hello \"World\"")
 \end{lstlisting}
 
@@ -371,8 +382,20 @@ We'll need to do the same for single quotes
 
 Later on we'll have to deal with string interpolation, but we're not going to bother with that for now.
 
-\section{Arrays, Hashes, Ranges, and other things}
+\section{Arrays, Hashes, Ranges, Constants, and ids}
 
 In terms of what we'll want to lex for these we're all set for Arrays, Hashes, and Ranges with the tokens we specified earlier. We'll make the parser deal with these more succintly. I think an argument could be made to handle strings the same way, but once we add string interpolation they're going to get a whole lot weirder.
 
-For the time being, I believe we have enough of a start to work on building out a parser.
+The last two rules we add should handle Constants and ids. In ruby the rule for a constant is simple that it starts with a capital letter and consists of letters, numbers, and underscores after that:
+
+\begin{lstlisting}
+[A-Z][A-Za-z0-9_]* { VTYPE("CONSTANT", yytext); }
+\end{lstlisting}
+
+and for ids they just need to start with a lowercase letter and then cosist of leterrs, numbers, and underscores after that
+
+\begin{lstlisting}
+[a-z][A-Za-z0-9_]* { VTYPE("ID", yytext); }
+\end{lstlisting}
+
+This won't cover every id, particular those for methods that use {\bf ?} and {\bf !}, but we'll deal with these later. For now, we have everything we need in place to start work on our parser.
