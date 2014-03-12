@@ -29,13 +29,13 @@ The second directive we'll add tells flex that we will not be implementing a yyw
 %option noyywrap
 \end{lstlisting}
 
-After specifying the directives, we'll follow up with some rules. The way the rules work are that they will try to match text and when it sees specific text it will execute the corresponding code. So the format for a single rule will look like:
+After specifying the directives, we'll follow up with some rules. The way the rules work are that they will try to match text and when it sees specific text it will execute the corresponding code known as the action. So the format for a single rule will look like:
 
 \begin{lstlisting}[language=C]
-RULE { C CODE }
+PATTERN { ACTION }
 \end{lstlisting}
 
-Our first lexer is just going to recognize numbers and inform us when it has found one. Additionally we'll want to ignore anyy characters that aren't numbers so we'll need two rules:
+Our first lexer is just going to recognize numbers and inform us when it has found one. Additionally we'll want to ignore anyy characters that aren't numbers so we'll need two rules. You can find out more about what patterns flex supports by visiting {\hyperref[http://flex.sourceforge.net/manual/Patterns.html]{http://flex.sourceforge.net/manual/Patterns.html}. Using those patterns we'll do the following:
 
 \begin{lstlisting}[language=C]
 [0-9]+ { printf("NUMBER: %s\\n", yytext); }
@@ -142,7 +142,7 @@ Now let's compile and run this program.
 
 \begin{lstlisting}
 make
-./ruby program.rb 
+./ruby program.rb
 \end{lstlisting}
 
 \begin{lstlisting}
@@ -199,3 +199,180 @@ Since we are now identifying number tokens let's add some more tokens. Let's cha
 \begin{lstlisting}
 x = 5
 \end{lstlisting}
+
+Now we'll modify out {\bf ruby.l} file to have rules for identifiers and assignment. First we'll add another macro for displaying just a type. Our macros will now look like:
+
+\begin{lstlisting}
+#define VTYPE(str, type) printf("%s(%s)\n", str, type)
+#define TYPE(type) printf("%s\n", type)
+\end{lstlisting}
+
+Now we'll add three rules. We'll add a matcher for identifiers which will later represent our variables and method calls. We'll also add a matcher for assignment '=' and we'll also need to add a matcher for whitespace. Since ruby doesn't care about whitespace we won't need to define any code for it. The three rules will look like the following:
+
+\begin{lstlisting}
+[a-z][a-zA-Z0-9_]* { VTYPE("ID", yytext); }
+= { TYPE("ASSIGN"); }
+[\t\n ]
+\end{lstlisting}
+
+Let's add rules for {\bf +}, {\bf -}, {\bf *}, {\bf /}, {\bf (}, {\bf )}, {\bf \{}, {\bf \}}, {\bf \#}, {\bf @}, {\bf .}, {\bf ,}, and {\bf :}.
+
+\begin{lstlisting}
+"=" { TYPE("EQUAL"); }
+"+" { TYPE("PLUS"); }
+"-" { TYPE("MINUS"); }
+"*" { TYPE("MULT"); }
+"/" { TYPE("DIV"); }
+"%" { TYPE("MOD"); }
+"(" { TYPE("LPAREN"); }
+")" { TYPE("RPAREN"); }
+"{" { TYPE("LBRACE"); }
+"}" { TYPE("RBRACE"); }
+"#" { TYPE("POUND"); }
+"@" { TYPE("AT"); }
+"." { TYPE("DOT"); }
+"," { TYPE("COMMA"); }
+":" { TYPE("COLON"); }
+\end{lstlisting}
+
+\section{Floats}
+
+Ruby has a pretty extensive definition for what floats can look like. Here are some examples
+
+\begin{lstlisting}
+1.0
+1.2345
+1e5
+1e-6
+1e+6
+1.0e6
+1.0e+6
+1.0e-6
+\end{lstlisting}
+
+We'll need to match all of these. We have two choices we can make here, we can either have a single rule for matching floats that would look like:
+
+\begin{lstlisting}
+[0-9]+((\.[0-9]+(e[+-]?[0-9]+)?)|(e[+-]?[0-9]+)) {
+  VTYPE("FLOAT", yytext);
+}
+\end{lstlisting}
+
+Another option would be to describe this in terms of three separate matchers:
+
+\begin{lstlisting}
+[0-9]e[+-][0-9]+ { VTYPE("FLOAT", yytext); }
+[0-9]+\.[0-9]e[+-][0-9]+ { VTYPE("FLOAT", yytext); }
+[0-9]+\.[0-9]+ { VTYPE("FLOAT", yytext); }
+\end{lstlisting}
+
+The later is a bit easier to read and requires less understanding about regular expressions. I'm going to use the single pattern and let Flex try to optimize it. Let's copy all the following and check that our program identifies the floats correctly:
+
+\begin{lstlisting}
+1.0
+1.2345
+1e5
+1e-6
+1e+6
+1.0e6
+1.0e+6
+1.0e-6
+1
+1235
+x = 1.5
+x = 1
+\end{lstlisting}
+
+This should be the output of running {\bf ./ruby program.rb}:
+
+\begin{lstlisting}
+FLOAT(1.0)
+FLOAT(1.2345)
+FLOAT(1e5)
+FLOAT(1e-6)
+FLOAT(1e+6)
+FLOAT(1.0e6)
+FLOAT(1.0e+6)
+FLOAT(1.0e-6)
+NUMBER(1)
+NUMBER(1235)
+ID(x)
+ASSIGN
+FLOAT(1.5)
+ID(x)
+ASSIGN
+NUMBER(1)
+\end{lstlisting}
+
+\section{Strings}
+
+A more difficult object to handle is a string. We have a few things we'll need to take into consideration. First, we're going to ignore any of the \% strings like {\bf \%|This is a string|}. We will support both single and double quotes. We'll also need to support escape characters. Let's start simple and work our way up. We'll handle double quotes strings first:
+
+\begin{lstlisting}
+\"[^"]+\" { VTYPE("STRING", yytext); }
+\end{lstlisting}
+
+And let's change our {\bf program.rb} to contain:
+
+\begin{lstlisting}
+x = "Hello World"
+\end{lstlisting}
+
+The output should be:
+
+\begin{lstlisting}
+ID(x)
+ASSIGN
+STRING("Hello World")
+\end{lstlisting}
+
+Now we need to solve the problem when our string contains an escaped quote. For instance if we were to try changing our {\bf program.rb} to:
+
+\begin{lstlisting}
+x = "Hello \"World\""
+\end{lstlisting}
+
+then we'll get the output:
+
+\begin{lstlisting}
+ID(x)
+ASSIGN
+STRING("Hello \")
+
+Unknown token: 'W'
+ID(orld)
+
+Unknown token: '\'
+
+Unknown token: '"'
+
+Unknown token: '"'
+\end{lstlisting}
+
+So we'll need to modify our string pattern a little. In fact, what we can do is change the string definition to accept any character preceeded by a \ since that will just be an escaped character. Let's change our string definition to:
+
+\begin{lstlisting}
+\"([^"]|\\.)+\" { VTYPE("STRING", yytext); }
+\end{lstlisting}
+
+With this, we're matching any character that is not a double quote or any character preceeded by a \\ which will include \\". Now when we run our program, we get the output:
+
+\begin{lstlisting}
+ID(x)
+ASSIGN
+STRING("Hello \"World\"")
+\end{lstlisting}
+
+We'll need to do the same for single quotes
+
+\begin{lstlisting}
+\'([^']|\\.)+\' { VTYPE("STRING", yytext); }
+\end{lstlisting}
+
+Later on we'll have to deal with string interpolation, but we're not going to bother with that for now.
+
+\section{Arrays, Hashes, Ranges, and other things}
+
+In terms of what we'll want to lex for these we're all set for Arrays, Hashes, and Ranges with the tokens we specified earlier. We'll make the parser deal with these more succintly. I think an argument could be made to handle strings the same way, but once we add string interpolation they're going to get a whole lot weirder.
+
+For the time being, I believe we have enough of a start to work on building out a parser.
